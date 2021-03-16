@@ -16,23 +16,30 @@
    */
   function loadHeader(pageName)
    {
-    
+    $.get("./Views/Partials/header.html", function(data)
+    {
+      $("header").html(data); // load nav bar
+      $(`#${pageName} a`).addClass('active'); // highlight active link
 
-    $.get("./Views/Partials/header.html", function(data){
-      $("header").html(data);
-
-      $(`#${pageName} a`).addClass('active');
-
-      // create a click event listener for each anchor tag in a list items that are inside of an unordered list
-      $('ul>li>a').on("click", function()
+      // loop through each anchor tag in the unordered list
+      // add an event listener / handler to allow for
+      // content injection
+      $('a').on("click", function()
       {
 
-        $(`#${activeLink} a`).removeClass('active'); // remove active from the current link
+        $(`#${activeLink}`).removeClass('active'); // remove active from the current link
         activeLink = $(this).parent().attr("id"); // change the active link
         loadContent(activeLink); // load the new content
         $(`#${activeLink} a`).addClass('active'); // set the activeLink's class to active
-        window.history.replaceState("","", activeLink);
+
+        history.replaceState({},"", activeLink);
         document.title = activeLink; // TODO: Capitalize the Title
+      });
+
+      // make it look like each nav item is an active link
+      $("a").on("mouseover", function()
+      {
+        $(this).css('cursor', 'pointer');
       });
 
     });

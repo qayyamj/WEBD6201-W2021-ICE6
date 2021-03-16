@@ -27,13 +27,15 @@
       $('a').on("click", function()
       {
 
-        $(`#${activeLink}`).removeClass('active'); // remove active from the current link
-        activeLink = $(this).parent().attr("id"); // change the active link
-        loadContent(activeLink); // load the new content
-        $(`#${activeLink} a`).addClass('active'); // set the activeLink's class to active
+        $(`#${router.activeLink}`).removeClass('active'); // remove active from the current link
+        router.activeLink = $(this).parent().attr("id"); // change the active link
+        loadContent(router.activeLink); // load the new content
+        $(`#${router.activeLink} a`).addClass('active'); // set the activeLink's class to active
 
-        history.replaceState({},"", activeLink);
-        document.title = activeLink; // TODO: Capitalize the Title
+        history.pushState({},"", router.activeLink);
+        document.title = router.activeLink; // TODO: Capitalize the Title
+
+        console.log(location.pathname);
       });
 
       // make it look like each nav item is an active link
@@ -69,14 +71,14 @@
 
     function displayHome()
     {
-       activeLink = "home";
-       window.history.replaceState("",activeLink, activeLink);
-       document.title = activeLink; 
+       router.activeLink = "home";
+       window.history.replaceState("",router.activeLink, router.activeLink);
+       document.title = router.activeLink; 
 
       // initial setup
-       loadHeader(activeLink);
+       loadHeader(router.activeLink);
 
-       loadContent(activeLink);
+       loadContent(router.activeLink);
 
        loadFooter();
         

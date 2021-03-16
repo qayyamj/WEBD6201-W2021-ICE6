@@ -8,74 +8,75 @@
 
 ((core) =>
 {
-  /**
-   * This function loads the header and marks the related nav link active
-   *
-   * @param {string} pageName
-   * @returns {void}
-   */
-  function loadHeader(pageName)
-   {
-    $.get("./Views/Partials/header.html", function(data)
+    /**
+     * Inject the Navigation bar into the Header element and highlight the active link based on the pageName parameter
+     *
+     * @param {string} pageName
+     */
+    function loadHeader(pageName)
     {
-      $("header").html(data); // load nav bar
-
-      toggleLogin();  // add login / logout and secure links
-
-      $(`#${pageName} a`).addClass('active'); // highlight active link
-
-      // loop through each anchor tag in the unordered list
-      // add an event listener / handler to allow for
-      // content injection
-      $('a').on("click", function()
+      // inject the Header
+      $.get("./Views/Components/header.html", function(data)
       {
+        $("header").html(data); // load the navigation bar
+        
+        toggleLogin(); // add login / logout and secure links
+        
+        $(`#${pageName}`).addClass("active"); // highlight active link
 
-        $(`#${router.ActiveLink}`).removeClass('active'); // remove active from the current link
-        router.ActiveLink = $(this).attr("id"); // change the active link
-        loadContent(router.ActiveLink, ActiveLinkCallback(router.ActiveLink)); // load the new content
-        $(`#${router.ActiveLink} a`).addClass('active'); // set the activeLink's class to active
+        // loop through each anchor tag in the unordered list and 
+        // add an event listener / handler to allow for 
+        // content injection
+        $("a").on("click", function()
+        {
+          $(`#${router.ActiveLink}`).removeClass("active"); // removes highlighted link
+          router.ActiveLink = $(this).attr("id");
+          loadContent(router.ActiveLink, ActiveLinkCallBack(router.ActiveLink));
+          $(`#${router.ActiveLink}`).addClass("active"); // applies highlighted link to new page
+          history.pushState({},"", router.ActiveLink); // this replaces the url displayed in the browser
+        });
 
-        history.pushState({},"", router.ActiveLink);
-        document.title = router.ActiveLink; // TODO: Capitalize the Title
+        // make it look like each nav item is an active link
+        $("a").on("mouseover", function()
+        {
+          $(this).css('cursor', 'pointer');
+        });
+        
       });
+    }
 
-      // make it look like each nav item is an active link
-      $("a").on("mouseover", function()
+    /**
+     * Inject page content in the main element 
+     *
+     * @param {string} pageName
+     * @param {function} callback
+     * @returns {void}
+     */
+    function loadContent(pageName, callback)
+    {
+      // inject content
+      $.get(`./Views/content/${pageName}.html`, function(data)
       {
-        $(this).css('cursor', 'pointer');
+        $("main").html(data);
+
+        callback();
       });
+      
+    }
 
-    });
-   }
-
-   function loadFooter()
-   {
-    $.get("./Views/Partials/footer.html", function(data){
-      $("footer").html(data);
-    });
-   }
-
-   /**
-    * This function loads the content of the page
-    *
-    * @param {string} pageName
-    * @param {function} callback
-    * @returns {void}
-    */
-   function loadContent(pageName, callback)
-   {
-    $.get(`./Views/Content/${pageName}.html`, function(data){
-      $("main").html(data);
-
-      callback();
-    });
-   }
-
-
+    function loadFooter()
+    {
+      // inject the Footer
+      $.get("./Views/Components/footer.html", function(data)
+      {
+        $("footer").html(data);
+      });
+    }
 
     function displayHome()
     {
-      console.log("Home Page function called");
+      console.log("Home page function called");
+        
     }
 
     function displayAbout()
@@ -183,8 +184,7 @@
     {
       // don't allow visitors to go here
       authGuard();
-      toggleLogin();
-      
+
       if (localStorage.length > 0) 
       {
 
@@ -218,7 +218,7 @@
         contactList.innerHTML = data;
 
         $("button.edit").on("click", function(){
-          location.href = "/edit" + $(this).val();
+          location.href = "/edit#" + $(this).val();
          });
 
          $("button.delete").on("click", function(){
@@ -355,11 +355,6 @@
 
     }
 
-    function display404()
-    {
-
-    }
-
     function toggleLogin()
     {
       // if user is logged in
@@ -408,14 +403,19 @@
       }
     }
 
-    function ActiveLinkCallback(activeLink)
+    function display404()
     {
-      switch (router.ActiveLink) 
+
+    }
+
+    function ActiveLinkCallBack(activeLink)
+    {
+      switch (activeLink) 
       {
         case "home": return displayHome;
         case "about": return displayAbout;
         case "projects": return displayProjects;
-        case "services": return displayServices; 
+        case "services": return displayServices;
         case "contact": return displayContact;
         case "contact-list": return displayContactList;
         case "edit": return displayEdit;
@@ -423,7 +423,7 @@
         case "register": return displayRegister;
         case "404": return display404;
         default:
-          console.error("ERROR: callback does not exist: " + ActiveLink);
+          console.error("ERROR: callback does not exist: " + activeLink);
           break;
       }
     }
@@ -432,14 +432,11 @@
     {
         console.log("App Started...");
 
-        // initial setup
         loadHeader(router.ActiveLink);
-
-        loadContent(router.ActiveLink, ActiveLinkCallback(router.ActiveLink));
+      
+        loadContent(router.ActiveLink, ActiveLinkCallBack(router.ActiveLink));
 
         loadFooter();
-
-        
     }
 
     window.addEventListener("load", Start);

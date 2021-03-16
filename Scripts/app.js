@@ -181,6 +181,9 @@
 
     function displayContactList() 
     {
+      // don't allow visitors to go here
+      authGuard();
+      toggleLogin();
       if (localStorage.length > 0) 
       {
 
@@ -395,6 +398,15 @@
       }
     }
 
+    function authGuard()
+    {
+      if(!sessionStorage.getItem("user"))
+      {
+      // redirect back to login page
+      location.href = "/login";
+      }
+    }
+
     function ActiveLinkCallback(activeLink)
     {
       switch (router.ActiveLink) 
@@ -426,8 +438,6 @@
 
         loadFooter();
 
-        // toggle login/logout
-       toggleLogin();
         
     }
 

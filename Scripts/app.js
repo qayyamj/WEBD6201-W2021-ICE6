@@ -184,6 +184,7 @@
       // don't allow visitors to go here
       authGuard();
       toggleLogin();
+      
       if (localStorage.length > 0) 
       {
 
